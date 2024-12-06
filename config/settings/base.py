@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import environ
+from celery import Celery
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -42,6 +43,27 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+# Celery Settings (Redis 사용)
+DJANGO_SETTINGS_MODULE = env("DJANGO_SETTINGS_MODULE", default="config.settings.base")
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "UTC"
+
+# Set Celery App
+app = Celery("boilerplate")
+app.config_from_object("django.conf:settings", namespace="CELERY")
+
+# macOS fork 이슈 해결을 위한 설정
+app.conf.worker_pool = "prefork"
+app.conf.worker_pool_restarts = True
+
+# Start Celery App
+app.autodiscover_tasks()
+
+# URL Configuration
 ROOT_URLCONF = "config.routers.view_router"
 
 TEMPLATES = [
@@ -70,8 +92,6 @@ DATABASES = {
 DATABASES["default"]["ATOMIC_REQUESTS"] = False
 
 # Password validation
-# https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -87,25 +107,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Internationalization
-# https://docs.djangoproject.com/en/3.2/topics/i18n/
-
+# International
 LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "UTC"
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-
+# Default Setting
 STATIC_URL = "/static/"
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
