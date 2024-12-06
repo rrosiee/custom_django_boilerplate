@@ -1,0 +1,1 @@
+from config.routers import view_router, api_router

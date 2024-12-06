@@ -4,15 +4,15 @@ import environ
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ROOT_DIR = Path(__file__).resolve(strict=True).parent.parent
+ROOT_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 APPS_DIR = ROOT_DIR / "boilerplate"
 env = environ.Env()
 environ.Env.read_env(os.path.join(ROOT_DIR, ".env"))
 
 # Django Settings
 SECRET_KEY = env("SECRET_KEY")
-DEBUG = True
-ALLOWED_HOSTS = []
+DEBUG = env.bool("DEBUG", default=True)
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 
 # INSTALLED_APPS
 INSTALLED_APPS = [
@@ -23,6 +23,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    "drf_yasg",
 
     # Apps
     "boilerplate.apps.users.apps.UsersConfig",
@@ -40,7 +42,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "boilerplate.urls"
+ROOT_URLCONF = "config.routers.view_router"
 
 TEMPLATES = [
     {
@@ -58,7 +60,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "boilerplate.wsgi.application"
+WSGI_APPLICATION = "config.wsgi.application"
 
 # DATABASES
 # ------------------------------------------------------------------------------
